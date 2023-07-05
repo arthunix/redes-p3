@@ -34,11 +34,15 @@ class IP:
         # (next_hop) a partir do endereço de destino do datagrama (dest_addr).
         # Retorne o next_hop para o dest_addr fornecido.
         
-        # PASSO 1
+        # PASSO 1 e PASSO 3
         next_hop = None
-        for tableIt in self.table:
-            if ip_address(dest_addr) in ip_network(tableIt[0]):         
-                next_hop = tableIt[1]
+        prefix = aux = 0
+        for tableItr in self.table:
+            if ip_address(dest_addr) in ip_network(tableItr[0]):
+                prefix = int(tableItr[0].split("/")[1])
+                if prefix >= aux:
+                    aux = prefix
+                    next_hop = tableItr[1]
         return next_hop
         pass
 
