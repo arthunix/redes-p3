@@ -30,7 +30,19 @@ class IP:
             vihl, dscpecn, total_len, identification, flagsfrag, ttl, proto, checksum, src_addr, dest_addr = struct.unpack('!BBHHHBBHII', datagrama[:20])
 
             ttl -= 1
-            if ttl != 0:
+            if ttl == 0:
+                next_hop = self._next_hop(src_addr)
+
+                # https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol
+                # https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol#Control_messages
+                checksum = calc_checksum(struct.pack('!BBHI', 11, 0, 0, 0) + datagrama[:64])
+                icmp = struct.pack('!BBHI', 11, 0, checksum, 0) + datagrama[:64]
+                checksum = calc_checksum(struct.pack('!BBHHHBBHII', vihl, dscpecn, 20 + len(icmp), identification, flagsfrag, 64, 1, 0, int.from_bytes(str2addr(self.meu_endereco), "big"), src_addr))
+                datagrama = struct.pack('!BBHHHBBHII', vihl, dscpecn, 20 + len(icmp), identification, flagsfrag, 64, 1, checksum, int.from_bytes(str2addr(self.meu_endereco), "big"), src_addr) + icmp
+
+                self.identification += 1
+                self.enlace.enviar(datagrama, next_hop)
+            else:
                 checksum = calc_checksum(struct.pack('!BBHHHBBHII', vihl, dscpecn, total_len, identification, flagsfrag, ttl, proto, 0, src_addr, dest_addr))
                 datagrama = struct.pack('!BBHHHBBHII', vihl, dscpecn, total_len, identification, flagsfrag, ttl, proto, checksum, src_addr, dest_addr) + datagrama[20:]
                 self.enlace.enviar(datagrama, next_hop)
