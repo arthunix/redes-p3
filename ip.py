@@ -75,4 +75,13 @@ class IP:
         next_hop = self._next_hop(dest_addr)
         # TODO: Assumindo que a camada superior é o protocolo TCP, monte o
         # datagrama com o cabeçalho IP, contendo como payload o segmento.
-        self.enlace.enviar(datagrama, next_hop)
+
+        if(next_hop != None):
+            # https://en.wikipedia.org/wiki/Internet_Protocol_version_4
+            # https://inc0x0.com/tcp-ip-packets-introduction/tcp-ip-packets-3-manually-create-and-send-raw-tcp-ip-packets
+            # 69d = 01000101b
+            frame = struct.pack('!BBHHHBBH', 69, 0, 20 + len(segmento), self.identification, 0, 64, 6, 0) + str2addr(self.meu_endereco) + str2addr(dest_addr)
+            checksum = calc_checksum(frame)
+            frame = struct.pack('!BBHHHBBH', 69, 0, 20 + len(segmento), self.identification, 0, 64, 6, checksum) + str2addr(self.meu_endereco) + str2addr(dest_addr) + segmento
+            datagrama = frame
+            self.enlace.enviar(datagrama, next_hop)
