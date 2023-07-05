@@ -80,8 +80,10 @@ class IP:
             # https://en.wikipedia.org/wiki/Internet_Protocol_version_4
             # https://inc0x0.com/tcp-ip-packets-introduction/tcp-ip-packets-3-manually-create-and-send-raw-tcp-ip-packets
             # 69d = 01000101b
-            frame = struct.pack('!BBHHHBBH', 69, 0, 20 + len(segmento), self.identification, 0, 64, 6, 0) + str2addr(self.meu_endereco) + str2addr(dest_addr)
-            checksum = calc_checksum(frame)
-            frame = struct.pack('!BBHHHBBH', 69, 0, 20 + len(segmento), self.identification, 0, 64, 6, checksum) + str2addr(self.meu_endereco) + str2addr(dest_addr) + segmento
-            datagrama = frame
-            self.enlace.enviar(datagrama, next_hop)
+            frame = struct.pack('!BBHHHBBH', 69, 0, 20 + len(segmento), self.identification, 0, 64, 6,                          \
+                            calc_checksum(struct.pack('!BBHHHBBH', 69, 0, 20 + len(segmento), self.identification, 0, 64, 6, 0) \
+                            + str2addr(self.meu_endereco)                                                                       \
+                            + str2addr(dest_addr)))                                                                             \
+                            + str2addr(self.meu_endereco)                                                                       \
+                            + str2addr(dest_addr) + segmento
+            self.enlace.enviar(frame, next_hop)
