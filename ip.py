@@ -33,6 +33,8 @@ class IP:
         # TODO: Use a tabela de encaminhamento para determinar o próximo salto
         # (next_hop) a partir do endereço de destino do datagrama (dest_addr).
         # Retorne o next_hop para o dest_addr fornecido.
+        
+        # PASSO 1
         next_hop = None
         for tableIt in self.table:
             if ip_address(dest_addr) in ip_network(tableIt[0]):         
@@ -76,6 +78,7 @@ class IP:
         # TODO: Assumindo que a camada superior é o protocolo TCP, monte o
         # datagrama com o cabeçalho IP, contendo como payload o segmento.
 
+        # PASSO 2
         if(next_hop != None):
             # https://en.wikipedia.org/wiki/Internet_Protocol_version_4
             # https://inc0x0.com/tcp-ip-packets-introduction/tcp-ip-packets-3-manually-create-and-send-raw-tcp-ip-packets
