@@ -1,5 +1,6 @@
 from iputils import *
-
+from ipaddress import ip_address, ip_network
+from struct import pack
 
 class IP:
     def __init__(self, enlace):
@@ -13,6 +14,7 @@ class IP:
         self.enlace.registrar_recebedor(self.__raw_recv)
         self.ignore_checksum = self.enlace.ignore_checksum
         self.meu_endereco = None
+        self.identification = 0
 
     def __raw_recv(self, datagrama):
         dscp, ecn, identification, flags, frag_offset, ttl, proto, \
@@ -31,6 +33,11 @@ class IP:
         # TODO: Use a tabela de encaminhamento para determinar o próximo salto
         # (next_hop) a partir do endereço de destino do datagrama (dest_addr).
         # Retorne o next_hop para o dest_addr fornecido.
+        next_hop = None
+        for tableIt in self.table:
+            if ip_address(dest_addr) in ip_network(tableIt[0]):         
+                next_hop = tableIt[1]
+        return next_hop
         pass
 
     def definir_endereco_host(self, meu_endereco):
@@ -51,6 +58,7 @@ class IP:
         """
         # TODO: Guarde a tabela de encaminhamento. Se julgar conveniente,
         # converta-a em uma estrutura de dados mais eficiente.
+        self.table = tabela
         pass
 
     def registrar_recebedor(self, callback):
